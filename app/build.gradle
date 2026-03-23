@@ -11,32 +11,28 @@ android {
         minSdk 21
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "2.0"
     }
 
     signingConfigs {
         release {
-            if (System.getenv("KEYSTORE_BASE64")) {
-                storeFile file("release.keystore")
-                storePassword System.getenv("KEYSTORE_PASS") ?: ""
-                keyAlias System.getenv("KEY_ALIAS") ?: ""
-                keyPassword System.getenv("KEY_PASS") ?: ""
-            }
-        }
-        debug {
-            // Uses default debug keystore
+            storeFile     file("release.keystore")
+            storePassword System.getenv("KEYSTORE_PASS") ?: "voidhunter123"
+            keyAlias      System.getenv("KEY_ALIAS")     ?: "voidhunter"
+            keyPassword   System.getenv("KEY_PASS")      ?: "voidhunter123"
         }
     }
 
     buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
         debug {
             applicationIdSuffix ".debug"
             debuggable true
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -46,6 +42,4 @@ android {
     }
 }
 
-dependencies {
-    // Pure Android SDK — no external deps needed
-}
+dependencies {}

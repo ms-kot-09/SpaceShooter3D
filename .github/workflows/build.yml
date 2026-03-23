@@ -1,4 +1,4 @@
-name: 🚀 Void Hunter — Build APK
+name: 🚀 Void Hunter — Release APK
 
 on:
   push:
@@ -7,8 +7,9 @@ on:
 
 jobs:
   build:
-    name: 🤖 Build Debug APK
+    name: 🤖 Build Release APK
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -33,13 +34,55 @@ jobs:
           curl -sL "https://github.com/gradle/gradle/raw/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
             -o gradle/wrapper/gradle-wrapper.jar
 
+      - name: Generate release keystore
+        run: |
+          keytool -genkey -v \
+            -keystore app/release.keystore \
+            -alias voidhunter \
+            -keyalg RSA -keysize 2048 \
+            -validity 10000 \
+            -storepass voidhunter123 \
+            -keypass voidhunter123 \
+            -dname "CN=VoidHunter, OU=Game, O=VoidHunter, L=Unknown, ST=Unknown, C=US"
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
+        env:
+          KEYSTORE_PASS: voidhunter123
+          KEY_ALIAS: voidhunter
+          KEY_PASS: voidhunter123
 
-      - uses: actions/upload-artifact@v4
+      - name: Rename APK
+        run: |
+          mkdir -p output
+          cp app/build/outputs/apk/release/app-release.apk output/VoidHunter-v2.0.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
         with:
-          name: VoidHunter-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: VoidHunter-Release
+          path: output/VoidHunter-v2.0.apk
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.${{ github.run_number }}
+          name: "Void Hunter v2.0.${{ github.run_number }}"
+          body: |
+            ## 🚀 Void Hunter v2.0
+            
+            ### Что нового:
+            - OpenGL ES 2.0 — настоящая 3D графика
+            - 3D модели кораблей из вершин
+            - 3 типа врагов (тарелка, истребитель, канонерка)
+            - Система частиц (взрывы, следы ракет)
+            - Настройки (сложность, звук, чувствительность)
+            - Power-ups (здоровье, щит, ракеты, рапид файр)
+            - Комбо-система и рекорды
+            - Релизная сборка (оптимизирована)
+          files: output/VoidHunter-v2.0.apk
+          generate_release_notes: false
