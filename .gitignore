@@ -1,0 +1,12 @@
+.gradle/
+build/
+*.apk
+*.aab
+*.keystore
+*.jks
+local.properties
+.idea/
+*.iml
+.DS_Store
+app/release.keystore
+gen_icon.py

@@ -1,0 +1,2 @@
+-keep class com.voidhunter.** { *; }
+-keepattributes *Annotation*
